@@ -108,6 +108,37 @@ class Talk
         return $message;
     }
 
+    protected function makeFile($conversationId, $message)
+    {
+        $message = $this->message->create([
+            'file' => $message,
+            'conversation_id' => $conversationId,
+            'user_id' => $this->authUserId,
+            'is_seen' => 0,
+        ]);
+
+        $message->conversation->touch();
+
+        $this->broadcast->transmission($message);
+
+        return $message;
+    }
+
+    protected function makeImage($conversationId, $message)
+    {
+        $message = $this->message->create([
+            'image' => $message,
+            'conversation_id' => $conversationId,
+            'user_id' => $this->authUserId,
+            'is_seen' => 0,
+        ]);
+
+        $message->conversation->touch();
+
+        $this->broadcast->transmission($message);
+
+        return $message;
+    }
     /*
      * Make new message collections to response with formatted data
      *
@@ -125,6 +156,7 @@ class Talk
             $withUser = ($conversations->userone->id === $this->authUserId) ? $conversations->usertwo : $conversations->userone;
             $collection->withUser = $withUser;
             $collection->messages = $conversations->messages;
+            $collection->count = $conversations->count;
 
             return $collection;
         }
@@ -266,6 +298,34 @@ class Talk
 
         $convId = $this->newConversation($receiverId);
         $message = $this->makeMessage($convId, $message);
+
+        return $message;
+    }
+
+    public function sendFileByUserId($receiverId, $message)
+    {
+        if ($conversationId = $this->isConversationExists($receiverId)) {
+            $message = $this->makeFile($conversationId, $message);
+
+            return $message;
+        }
+
+        $convId = $this->newConversation($receiverId);
+        $message = $this->makeFile($convId, $message);
+
+        return $message;
+    }
+
+    public function sendImageByUserId($receiverId, $message)
+    {
+        if ($conversationId = $this->isConversationExists($receiverId)) {
+            $message = $this->makeImage($conversationId, $message);
+
+            return $message;
+        }
+
+        $convId = $this->newConversation($receiverId);
+        $message = $this->makeImage($convId, $message);
 
         return $message;
     }
