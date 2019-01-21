@@ -14,10 +14,13 @@ class Message extends Model implements HtmlStringInterface
 
     public $timestamps = true;
 
-    protected $appends = ['humans_time'];
+    protected $appends = ['createdDate'];
+
 
     public $fillable = [
         'message',
+        'file',
+        'image',
         'is_seen',
         'deleted_from_sender',
         'deleted_from_receiver',
@@ -30,13 +33,11 @@ class Message extends Model implements HtmlStringInterface
      *
      * @return string
      * */
-    public function getHumansTimeAttribute()
+    public function getCreatedDateAttribute()
     {
-        $date = $this->created_at;
-        $now = $date->now();
-
-        return $date->diffForHumans($now, true);
+        return $this->created_at->format('g:i A');
     }
+
 
     /*
      * make a relation between conversation model
