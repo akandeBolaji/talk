@@ -200,7 +200,17 @@ class ConversationRepository extends Repository
 
                 }
             ]
-        )->with(['userone', 'usertwo'])->find($conversationId);
+        )->with(['userone', 'usertwo'])->withCount(['messages as count' => function ($quer) use ($userId) {
+            $quer->where(function ($qr) use ($userId) {
+                $qr->where('user_id', '=', $userId)
+                    ->where('deleted_from_sender', 0);
+            })
+            ->orWhere(function ($q) use ($userId) {
+                $q->where('user_id', '!=', $userId)
+                    ->where('deleted_from_receiver', 0);
+            });
+
+        }])->find($conversationId);
 
     }
 
