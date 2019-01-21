@@ -130,6 +130,7 @@ class ConversationRepository extends Repository
             $collection = (object)null;
             $conversationWith = ($thread->userone->id == $user) ? $thread->usertwo : $thread->userone;
             $collection->thread = $thread->messages->first();
+            $collection->unread = $thread->messages->where('is_seen', 0)->count();
             $collection->withUser = $conversationWith;
             $threads[] = $collection;
         }
